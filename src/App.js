@@ -1,4 +1,6 @@
 import React from "react";
+import axios from "axios";
+
 import { 
 	Navbar,
 	NavbarBrand,
@@ -14,6 +16,12 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import "./App.css";
 
 export default function App() {
+	const [data, setData] = React.useState({
+		isLoading: true,
+		isError: false,
+		errorMessage: "",
+		productList: []
+	});
 	const [navbarTogglerIsOpen, setNavbarTogglerIsOpen] = React.useState(false);
 	const navbarTogglerHandler = () => {
 		setNavbarTogglerIsOpen(!navbarTogglerIsOpen);
@@ -27,6 +35,18 @@ export default function App() {
 	};
 	React.useEffect(() => {
 		document.title = "MamaKue.id - Online Cake Catering";
+		axios.get(`${process.env.REACT_APP_API_URL}/product`)
+			.then((result) => {
+				console.log(result.data);
+				setData({
+					...data, isLoading: false, isError: false, productList: result.data.data
+				});
+			})
+			.catch((err) => {
+				setData({
+					...data, isLoading: false, isError: true, errorMessage: err.response.data
+				});
+			});
 	}, []);
 	return (
 		<div className="container-fluid p-0">
@@ -124,36 +144,17 @@ export default function App() {
 			<section className="d-flex flex-column w-100 align-items-center" id="product" style={{ padding: "50px", background: "#ffcc00" }}>
 				<h1>List Produk</h1>
 				<div className="mt-5 row w-100">
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
-					<div className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
-						<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: "url('https://mnews-wp.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2021/04/28161134/Kue-Lebaran-1.jpg')", borderRadius: "10px" }}>
-							<h3 style={{ padding: "15px" }}>Nastar keju</h3>
-						</div>
-					</div>
+					{data.isLoading ? (<div>Loading...</div>) : 
+						data.isError ? (<div>{data.errorMessage}</div>) : 
+							data.productList.length > 0 ? data.productList.map((element, index) => (
+								<div key={index} className="col-lg-4 col-md-6 col-sm-12 mb-4 d-flex justify-content-center">
+									<div className="d-flex flex-column justify-content-end" style={{ width: "95%", height: "400px", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundImage: `url('${process.env.REACT_APP_API_URL}/${element.image}')`, borderRadius: "10px" }}>
+										<h3 style={{ padding: "15px" }}>{element.name}</h3>
+									</div>
+								</div>
+							)) : 
+								(<div>Unexpected error</div>)
+					}
 				</div>
 			</section>
 			<section className="d-flex flex-column w-100 align-items-center" id="contact" style={{ padding: "50px", background: "#ffcc00" }}>
